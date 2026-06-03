@@ -23,6 +23,8 @@ const acteurs = defineCollection({
     email: z.string().optional(),
     website: z.string().optional(),
     image: z.string().optional(),
+    lat: z.number().optional(),
+    lng: z.number().optional(),
   }),
 });
 
