@@ -5,10 +5,10 @@
 
 backend:
   name: github
-  repo: victordlroche/   # ← à personnaliser
+  repo: victordlroche/Website_isere-local
   branch: main
   auth_type: pkce
-  app_id: TON_OAUTH_APP_CLIENT_ID   # ← à renseigner (voir README)
+  app_id: Ov23lirXAFtJeA2fGd8R
 
 # Dossier de stockage des images uploadées
 media_folder: public/images
