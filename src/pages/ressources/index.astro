@@ -1,0 +1,36 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { getCollection } from 'astro:content';
+const items = (await getCollection('ressources')).sort((a,b) => (b.data.year||0) - (a.data.year||0));
+const types = [...new Set(items.map(r => r.data.type))];
+---
+<BaseLayout title="Ressources" description="Documents techniques, guides et liens autour du pisé.">
+<section class="section">
+  <div class="section-header">
+    <div><span class="section-eyebrow">Documentation</span><h2 class="section-title">Ressources</h2></div>
+  </div>
+  {items.length === 0 && <p style="color:var(--argile);font-size:.9rem">Aucune ressource pour le moment.</p>}
+  {types.map(type => (
+    <div style="margin-bottom:3rem">
+      <p style="font-size:.68rem;font-weight:500;letter-spacing:.18em;text-transform:uppercase;color:var(--ocre);margin-bottom:1rem">{type}</p>
+      <div class="grid">
+        {items.filter(r => r.data.type === type).map(r => (
+          <div class="rcard">
+            <p class="rtitle">{r.data.title}</p>
+            {r.data.source && <p class="rmeta">{r.data.source}{r.data.year ? ` · ${r.data.year}` : ''}</p>}
+            {r.data.url && <a href={r.data.url} target="_blank" rel="noopener" class="rlink">Accéder →</a>}
+          </div>
+        ))}
+      </div>
+    </div>
+  ))}
+</section>
+</BaseLayout>
+<style>
+  .grid { display:grid;grid-template-columns:repeat(3,1fr);gap:1rem; }
+  .rcard { background:white;border:.5px solid rgba(193,127,58,0.2);border-radius:1rem;padding:1.25rem; }
+  .rtitle { font-weight:500;font-size:.88rem;color:var(--charbon);margin-bottom:.4rem; }
+  .rmeta { font-size:.74rem;color:var(--argile);margin-bottom:.75rem; }
+  .rlink { font-size:.72rem;letter-spacing:.08em;text-transform:uppercase;color:var(--ocre);text-decoration:none;border-bottom:1px solid var(--ocre-light); }
+  @media(max-width:768px){ .grid { grid-template-columns:1fr; } }
+</style>

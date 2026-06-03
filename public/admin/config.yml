@@ -1,0 +1,123 @@
+# ─────────────────────────────────────────────────────────────────
+# Decap CMS — Configuration Pisé Isérois
+# Doc : https://decapcms.org/docs/configuration-options/
+# ─────────────────────────────────────────────────────────────────
+
+backend:
+  name: github
+  repo: victordlroche/pise-iserois   # ← à personnaliser
+  branch: main
+  auth_type: pkce
+  app_id: TON_OAUTH_APP_CLIENT_ID   # ← à renseigner (voir README)
+
+# Dossier de stockage des images uploadées
+media_folder: public/images
+public_folder: /images
+
+# Langue de l'interface admin
+locale: fr
+
+# ─── COLLECTIONS ────────────────────────────────────────────────
+
+collections:
+
+  # RÉALISATIONS
+  - name: realisations
+    label: Réalisations
+    label_singular: Réalisation
+    folder: src/content/realisations
+    create: true
+    slug: "{{slug}}"
+    fields:
+      - { label: Titre, name: title, widget: string }
+      - { label: Type, name: type, widget: select,
+          options: [Habitat neuf, Réhabilitation, Équipement public, Aménagement extérieur] }
+      - { label: Localisation, name: location, widget: string }
+      - { label: Année, name: year, widget: number, min: 1900, max: 2100 }
+      - { label: Image principale, name: image, widget: image, required: false }
+      - { label: Description, name: body, widget: markdown }
+      - { label: Artisan ou architecte, name: artisan, widget: string, required: false }
+      - { label: Mettre en avant, name: featured, widget: boolean, default: false }
+
+  # ACTEURS (artisans, architectes)
+  - name: acteurs
+    label: Acteurs du territoire
+    label_singular: Acteur
+    folder: src/content/acteurs
+    create: true
+    slug: "{{slug}}"
+    fields:
+      - { label: Nom / Raison sociale, name: title, widget: string }
+      - { label: Rôle, name: role, widget: select,
+          options: [Maçon pisé, Architecte terre, Entreprise générale, Formateur, Bureau d'études, Autre] }
+      - { label: Zone géographique, name: zone, widget: string }
+      - { label: Téléphone, name: phone, widget: string, required: false }
+      - { label: Email, name: email, widget: string, required: false }
+      - { label: Site web, name: website, widget: string, required: false }
+      - { label: Photo, name: image, widget: image, required: false }
+      - { label: Présentation, name: body, widget: markdown }
+
+  # ASSOCIATIONS
+  - name: associations
+    label: Associations
+    label_singular: Association
+    folder: src/content/associations
+    create: true
+    slug: "{{slug}}"
+    fields:
+      - { label: Nom, name: title, widget: string }
+      - { label: Sigle, name: sigle, widget: string, hint: "Ex : ATP, CRB — 3 à 4 caractères max" }
+      - { label: Type, name: type, widget: select,
+          options: [Patrimoine, Sensibilisation, Réhabilitation, Formation, Recherche, Autre] }
+      - { label: Adresse, name: address, widget: string, required: false }
+      - { label: Téléphone, name: phone, widget: string, required: false }
+      - { label: Email, name: email, widget: string, required: false }
+      - { label: Site web, name: website, widget: string, required: false }
+      - { label: Zone d'action, name: zone, widget: string }
+      - { label: Description, name: body, widget: markdown }
+
+  # AGENDA
+  - name: agenda
+    label: Agenda
+    label_singular: Événement
+    folder: src/content/agenda
+    create: true
+    slug: "{{year}}-{{month}}-{{day}}-{{slug}}"
+    fields:
+      - { label: Titre, name: title, widget: string }
+      - { label: Date, name: date, widget: datetime, format: "YYYY-MM-DD", time_format: false }
+      - { label: Type, name: type, widget: select,
+          options: [Formation, Visite, Conférence, Chantier participatif, Exposition, Autre] }
+      - { label: Lieu, name: location, widget: string }
+      - { label: Durée, name: duration, widget: string, hint: "Ex : 2 jours, Journée, 2h" }
+      - { label: Lien inscription, name: registration_url, widget: string, required: false }
+      - { label: Description, name: body, widget: markdown }
+
+  # RESSOURCES
+  - name: ressources
+    label: Ressources
+    label_singular: Ressource
+    folder: src/content/ressources
+    create: true
+    slug: "{{slug}}"
+    fields:
+      - { label: Titre, name: title, widget: string }
+      - { label: Type, name: type, widget: select,
+          options: [Guide technique, Étude, Vidéo, Lien externe, Document PDF] }
+      - { label: Auteur / Source, name: source, widget: string, required: false }
+      - { label: Année, name: year, widget: number, required: false }
+      - { label: URL ou fichier, name: url, widget: string, required: false }
+      - { label: Description, name: body, widget: markdown }
+
+  # PAGE PARAMÈTRES SITE
+  - name: settings
+    label: Paramètres du site
+    files:
+      - label: Informations générales
+        name: general
+        file: src/content/settings/general.json
+        fields:
+          - { label: Nom du site, name: site_name, widget: string }
+          - { label: Description, name: description, widget: text }
+          - { label: Email de contact, name: contact_email, widget: string }
+          - { label: Téléphone, name: contact_phone, widget: string, required: false }

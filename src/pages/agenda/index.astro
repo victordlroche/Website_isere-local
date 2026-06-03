@@ -1,0 +1,76 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { getCollection } from 'astro:content';
+const now = new Date();
+const items = (await getCollection('agenda'))
+  .sort((a,b) => new Date(a.data.date).getTime() - new Date(b.data.date).getTime());
+const upcoming = items.filter(e => new Date(e.data.date) >= now);
+const past = items.filter(e => new Date(e.data.date) < now);
+const base = import.meta.env.BASE_URL.replace(/\/$/, '');
+---
+<BaseLayout title="Agenda" description="Événements, formations et visites autour du pisé en Isère.">
+<section class="section" style="background:var(--terre)">
+  <div class="section-header">
+    <div><span class="section-eyebrow" style="color:var(--ocre-light)">Agenda</span><h2 class="section-title" style="color:var(--lin)">Prochains événements</h2></div>
+  </div>
+  {upcoming.length === 0 && <p style="color:rgba(247,242,232,0.5);font-size:.9rem">Aucun événement à venir. Revenez bientôt !</p>}
+  <div class="list">
+    {upcoming.map(e => {
+      const d = new Date(e.data.date);
+      return (
+        <a href={`${base}/agenda/${e.slug}`} class="ecard">
+          <div class="edate">
+            <span class="eday">{d.getDate().toString().padStart(2,'0')}</span>
+            <span class="emon">{d.toLocaleDateString('fr-FR',{month:'short'})}</span>
+            <span class="eyr">{d.getFullYear()}</span>
+          </div>
+          <div class="ediv"></div>
+          <div class="einfo">
+            <p class="etitle">{e.data.title}</p>
+            <div class="emeta"><span>📍 {e.data.location}</span><span>⏱ {e.data.duration}</span></div>
+          </div>
+          <span class="etype">{e.data.type}</span>
+        </a>
+      );
+    })}
+  </div>
+</section>
+{past.length > 0 && (
+<section class="section">
+  <h2 style="font-family:'Playfair Display',serif;font-size:1.5rem;color:var(--argile);margin-bottom:1.5rem">Événements passés</h2>
+  <div class="list-past">
+    {past.reverse().map(e => {
+      const d = new Date(e.data.date);
+      return (
+        <a href={`${base}/agenda/${e.slug}`} class="ecard-past">
+          <span class="epdate">{d.toLocaleDateString('fr-FR',{day:'2-digit',month:'long',year:'numeric'})}</span>
+          <span class="eptype">{e.data.type}</span>
+          <p class="eptitle">{e.data.title}</p>
+          <span>📍 {e.data.location}</span>
+        </a>
+      );
+    })}
+  </div>
+</section>
+)}
+</BaseLayout>
+<style>
+  .list { display:flex;flex-direction:column;gap:1rem; }
+  .ecard { display:flex;align-items:center;gap:1.5rem;background:rgba(247,242,232,0.07);border:.5px solid rgba(193,127,58,0.2);border-radius:1rem;padding:1.25rem 1.5rem;text-decoration:none;transition:background .3s; }
+  .ecard:hover { background:rgba(247,242,232,0.13); }
+  .edate { text-align:center;flex-shrink:0;width:3.5rem; }
+  .eday { font-family:'Playfair Display',serif;font-size:1.6rem;font-weight:600;color:var(--ocre);display:block;line-height:1; }
+  .emon,.eyr { font-size:.65rem;letter-spacing:.1em;text-transform:uppercase;color:rgba(247,242,232,0.4);display:block; }
+  .ediv { width:1px;height:2.5rem;background:rgba(193,127,58,0.25);flex-shrink:0; }
+  .einfo { flex:1; }
+  .etitle { font-weight:500;font-size:.9rem;color:var(--lin);margin-bottom:.25rem; }
+  .emeta { font-size:.75rem;color:rgba(247,242,232,0.45);display:flex;gap:1rem; }
+  .etype { font-size:.65rem;letter-spacing:.1em;text-transform:uppercase;color:var(--ocre);background:rgba(193,127,58,0.15);padding:.2rem .65rem;border-radius:1rem;flex-shrink:0; }
+  .list-past { display:flex;flex-direction:column;gap:.75rem; }
+  .ecard-past { display:grid;grid-template-columns:auto auto 1fr auto;align-items:center;gap:1rem;background:white;border:.5px solid rgba(193,127,58,0.15);border-radius:.75rem;padding:1rem 1.25rem;text-decoration:none;opacity:.7;transition:opacity .3s; }
+  .ecard-past:hover { opacity:1; }
+  .epdate { font-size:.75rem;color:var(--argile); }
+  .eptype { font-size:.63rem;letter-spacing:.1em;text-transform:uppercase;color:var(--ocre);background:var(--ocre-pale);padding:.15rem .5rem;border-radius:.75rem; }
+  .eptitle { font-size:.85rem;font-weight:500;color:var(--charbon); }
+  @media(max-width:768px){ .ecard-past { grid-template-columns:1fr;gap:.4rem; } }
+</style>

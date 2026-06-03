@@ -1,0 +1,36 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { getCollection } from 'astro:content';
+const items = (await getCollection('acteurs')).sort((a,b) => a.data.title.localeCompare(b.data.title));
+const base = import.meta.env.BASE_URL.replace(/\/$/, '');
+---
+<BaseLayout title="Annuaire des acteurs" description="Artisans, architectes et formateurs spécialisés pisé en Isère.">
+<section class="section">
+  <div class="section-header">
+    <div><span class="section-eyebrow">Réseau</span><h2 class="section-title">Artisans & Architectes</h2></div>
+  </div>
+  {items.length === 0 && <p style="color:var(--argile);font-size:.9rem">Aucun acteur pour le moment. Ajoutez-en via l'administration.</p>}
+  <div class="grid">
+    {items.map(a => (
+      <div class="card">
+        {a.data.image ? <img src={a.data.image} alt={a.data.title} class="avatar-img" /> : <div class="avatar">{a.data.title.slice(0,2).toUpperCase()}</div>}
+        <p class="name">{a.data.title}</p>
+        <p class="role">{a.data.role}</p>
+        <span class="zone">📍 {a.data.zone}</span>
+        {a.data.email && <a href={`mailto:${a.data.email}`} class="contact">Contacter →</a>}
+      </div>
+    ))}
+  </div>
+</section>
+</BaseLayout>
+<style>
+  .grid { display:grid;grid-template-columns:repeat(4,1fr);gap:1rem; }
+  .card { background:white;border:.5px solid rgba(193,127,58,0.2);border-radius:1rem;padding:1.5rem;text-align:center; }
+  .avatar { width:3.5rem;height:3.5rem;border-radius:50%;background:var(--ocre-pale);border:2px solid rgba(193,127,58,0.25);display:flex;align-items:center;justify-content:center;font-family:'Playfair Display',serif;font-size:1.1rem;font-weight:600;color:var(--terre);margin:0 auto .75rem; }
+  .avatar-img { width:3.5rem;height:3.5rem;border-radius:50%;object-fit:cover;margin:0 auto .75rem; }
+  .name { font-weight:500;font-size:.88rem;color:var(--charbon);margin-bottom:.25rem; }
+  .role { font-size:.72rem;color:var(--argile);margin-bottom:.75rem; }
+  .zone { display:inline-block;font-size:.68rem;letter-spacing:.08em;text-transform:uppercase;color:var(--ocre);background:var(--ocre-pale);padding:.25rem .75rem;border-radius:1rem; }
+  .contact { display:block;margin-top:.75rem;font-size:.72rem;color:var(--ocre);text-decoration:none; }
+  @media(max-width:768px){ .grid { grid-template-columns:repeat(2,1fr); } }
+</style>

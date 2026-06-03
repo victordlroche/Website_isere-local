@@ -1,0 +1,29 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { getCollection } from 'astro:content';
+export async function getStaticPaths() {
+  const items = await getCollection('associations');
+  return items.map(item => ({ params: { slug: item.slug }, props: { item } }));
+}
+const { item } = Astro.props;
+const { Content } = await item.render();
+---
+<BaseLayout title={item.data.title}>
+<article class="section">
+  <div style="display:flex;align-items:center;gap:1rem;margin-bottom:1.5rem">
+    <div style="width:3.5rem;height:3.5rem;border-radius:.75rem;background:var(--terre);display:flex;align-items:center;justify-content:center;font-family:'Playfair Display',serif;font-size:1rem;font-weight:600;color:var(--ocre-light)">{item.data.sigle}</div>
+    <div>
+      <h1 style="font-family:'Playfair Display',serif;font-size:1.8rem;color:var(--terre)">{item.data.title}</h1>
+      <span style="font-size:.68rem;letter-spacing:.12em;text-transform:uppercase;color:var(--ocre)">{item.data.type}</span>
+    </div>
+  </div>
+  <div style="background:white;border:.5px solid rgba(193,127,58,0.2);border-radius:1rem;padding:1.5rem;margin-bottom:2rem;display:flex;flex-direction:column;gap:.5rem">
+    {item.data.address && <p>📍 {item.data.address}</p>}
+    {item.data.phone && <p>📞 {item.data.phone}</p>}
+    {item.data.email && <p>✉️ <a href={`mailto:${item.data.email}`} style="color:var(--ocre)">{item.data.email}</a></p>}
+    {item.data.website && <p>🌐 <a href={item.data.website} target="_blank" rel="noopener" style="color:var(--ocre)">{item.data.website}</a></p>}
+    <p>Zone : {item.data.zone}</p>
+  </div>
+  <div class="prose"><Content /></div>
+</article>
+</BaseLayout>

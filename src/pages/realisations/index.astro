@@ -1,0 +1,36 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { getCollection } from 'astro:content';
+const items = (await getCollection('realisations')).sort((a,b) => b.data.year - a.data.year);
+const base = import.meta.env.BASE_URL.replace(/\/$/, '');
+---
+<BaseLayout title="Réalisations" description="Galerie de constructions et réhabilitations en pisé en Isère.">
+<section class="section">
+  <div class="section-header">
+    <div><span class="section-eyebrow">Galerie</span><h2 class="section-title">Réalisations</h2></div>
+  </div>
+  {items.length === 0 && <p style="color:var(--argile);font-size:.9rem">Aucune réalisation pour le moment. Ajoutez-en via l'interface d'administration.</p>}
+  <div class="grid">
+    {items.map(r => (
+      <a href={`${base}/realisations/${r.slug}`} class="card">
+        {r.data.image ? <img src={r.data.image} alt={r.data.title} /> : <div class="placeholder"></div>}
+        <div class="overlay">
+          <p class="tag">{r.data.type} · {r.data.location} · {r.data.year}</p>
+          <p class="name">{r.data.title}</p>
+        </div>
+      </a>
+    ))}
+  </div>
+</section>
+</BaseLayout>
+<style>
+  .grid { display:grid;grid-template-columns:repeat(3,1fr);gap:1.25rem; }
+  .card { border-radius:1.25rem;overflow:hidden;position:relative;min-height:260px;display:block;text-decoration:none;transition:transform .3s; }
+  .card:hover { transform:translateY(-4px); }
+  .card img,.placeholder { width:100%;height:100%;object-fit:cover;display:block; }
+  .placeholder { background:linear-gradient(135deg,#C4A97A,#7A5835);min-height:260px; }
+  .overlay { position:absolute;bottom:0;left:0;right:0;background:linear-gradient(transparent,rgba(44,36,24,0.88));padding:1.5rem 1.25rem 1.25rem; }
+  .tag { font-size:.65rem;letter-spacing:.15em;text-transform:uppercase;color:var(--ocre-light);margin-bottom:.3rem; }
+  .name { font-family:'Playfair Display',serif;font-size:1rem;font-weight:600;color:var(--lin); }
+  @media(max-width:768px){ .grid { grid-template-columns:1fr; } }
+</style>

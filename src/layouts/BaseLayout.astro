@@ -1,0 +1,139 @@
+---
+export interface Props { title?: string; description?: string; }
+const { title = 'Pisé Isérois', description = 'Plateforme de valorisation du savoir-faire en construction de terre crue en Isère.' } = Astro.props;
+const base = import.meta.env.BASE_URL.replace(/\/$/, '');
+---
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content={description} />
+  <title>{title === 'Pisé Isérois' ? title : `${title} — Pisé Isérois`}</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;1,400&family=Source+Serif+4:ital,opsz,wght@0,8..60,300;0,8..60,400;1,8..60,300&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+</head>
+<body>
+<nav>
+  <a href={`${base}/`} class="nav-logo">Pisé <span>Isérois</span></a>
+  <ul class="nav-links">
+    <li><a href={`${base}/le-pise`}>Le pisé</a></li>
+    <li><a href={`${base}/realisations`}>Réalisations</a></li>
+    <li><a href={`${base}/acteurs`}>Acteurs</a></li>
+    <li><a href={`${base}/associations`}>Associations</a></li>
+    <li><a href={`${base}/agenda`}>Agenda</a></li>
+    <li><a href={`${base}/ressources`}>Ressources</a></li>
+  </ul>
+  <button class="nav-burger" id="burger" aria-label="Menu"><span></span><span></span><span></span></button>
+  <a href={`${base}/#contact`} class="nav-cta">Nous contacter</a>
+</nav>
+<div class="nav-mobile" id="mobile-menu">
+  <ul>
+    <li><a href={`${base}/le-pise`}>Le pisé</a></li>
+    <li><a href={`${base}/realisations`}>Réalisations</a></li>
+    <li><a href={`${base}/acteurs`}>Acteurs</a></li>
+    <li><a href={`${base}/associations`}>Associations</a></li>
+    <li><a href={`${base}/agenda`}>Agenda</a></li>
+    <li><a href={`${base}/ressources`}>Ressources</a></li>
+    <li><a href={`${base}/#contact`} class="mobile-cta">Nous contacter</a></li>
+  </ul>
+</div>
+<main><slot /></main>
+<footer id="contact">
+  <div>
+    <p class="footer-brand">Pisé <span>Isérois</span></p>
+    <p class="footer-desc">Plateforme de valorisation du patrimoine et du savoir-faire en construction de terre crue dans le département de l'Isère.</p>
+  </div>
+  <div>
+    <p class="footer-col-title">Navigation</p>
+    <ul class="footer-links">
+      <li><a href={`${base}/le-pise`}>Histoire &amp; technique</a></li>
+      <li><a href={`${base}/realisations`}>Réalisations</a></li>
+      <li><a href={`${base}/acteurs`}>Annuaire des acteurs</a></li>
+      <li><a href={`${base}/associations`}>Associations</a></li>
+      <li><a href={`${base}/agenda`}>Agenda</a></li>
+      <li><a href={`${base}/ressources`}>Ressources</a></li>
+    </ul>
+  </div>
+  <div>
+    <p class="footer-col-title">Informations</p>
+    <ul class="footer-links">
+      <li><a href="#">Contribuer au site</a></li>
+      <li><a href="#">Mentions légales</a></li>
+      <li><a href="#">Accessibilité</a></li>
+    </ul>
+  </div>
+</footer>
+<div class="footer-bottom">
+  <span>© {new Date().getFullYear()} Pisé Isérois — Hébergé sur GitHub Pages — Zéro cookie tiers</span>
+  <span>Astro · Decap CMS</span>
+</div>
+<script>
+  const burger = document.getElementById('burger');
+  const menu = document.getElementById('mobile-menu');
+  burger?.addEventListener('click', () => { menu?.classList.toggle('open'); burger.classList.toggle('open'); });
+  menu?.querySelectorAll('a').forEach(a => a.addEventListener('click', () => { menu.classList.remove('open'); burger?.classList.remove('open'); }));
+</script>
+</body>
+</html>
+<style is:global>
+  :root { --ocre:#C17F3A;--ocre-light:#E8C98A;--ocre-pale:#F5EDD8;--terre:#7A4F2E;--lin:#F7F2E8;--charbon:#2C2418;--mur:#D4C4A0;--argile:#9E7B55; }
+  *,*::before,*::after { box-sizing:border-box;margin:0;padding:0; }
+  html { scroll-behavior:smooth; }
+  body { font-family:'DM Sans',sans-serif;background:var(--lin);color:var(--charbon);overflow-x:hidden;line-height:1.6; }
+  img { max-width:100%;display:block; }
+  a { color:inherit; }
+  .section { padding:5rem 3rem; }
+  .section-header { display:flex;align-items:baseline;justify-content:space-between;margin-bottom:3rem; }
+  .section-eyebrow { font-size:.68rem;font-weight:500;letter-spacing:.2em;text-transform:uppercase;color:var(--ocre);display:block;margin-bottom:.5rem; }
+  .section-title { font-family:'Playfair Display',serif;font-size:2.1rem;font-weight:600;color:var(--charbon);line-height:1.2; }
+  .section-link { font-size:.75rem;letter-spacing:.1em;text-transform:uppercase;color:var(--argile);text-decoration:none;display:flex;align-items:center;gap:.4rem;border-bottom:1px solid var(--mur);padding-bottom:2px;white-space:nowrap;transition:color .3s; }
+  .section-link:hover { color:var(--terre); }
+  .btn-primary { font-size:.78rem;font-weight:500;letter-spacing:.1em;text-transform:uppercase;color:var(--lin);background:var(--terre);padding:.85rem 2rem;border-radius:2rem;text-decoration:none;display:inline-flex;align-items:center;gap:.75rem;transition:background .3s; }
+  .btn-primary:hover { background:var(--ocre); }
+  .btn-ghost { font-size:.78rem;color:var(--argile);text-decoration:none;display:inline-flex;align-items:center;gap:.4rem;border-bottom:1px solid var(--mur);padding-bottom:2px;transition:color .3s; }
+  .btn-ghost:hover { color:var(--terre); }
+  nav { display:flex;align-items:center;justify-content:space-between;padding:1.25rem 3rem;background:rgba(247,242,232,0.95);border-bottom:1px solid rgba(193,127,58,0.2);position:sticky;top:0;z-index:100;backdrop-filter:blur(8px);gap:1rem; }
+  .nav-logo { font-family:'Playfair Display',serif;font-size:1.1rem;font-weight:600;color:var(--terre);letter-spacing:.02em;text-decoration:none;flex-shrink:0; }
+  .nav-logo span { font-weight:400;font-style:italic;color:var(--ocre); }
+  .nav-links { display:flex;gap:2rem;list-style:none; }
+  .nav-links a { font-size:.78rem;font-weight:400;letter-spacing:.1em;text-transform:uppercase;color:var(--argile);text-decoration:none;transition:color .3s; }
+  .nav-links a:hover { color:var(--terre); }
+  .nav-cta { font-size:.75rem;font-weight:500;letter-spacing:.1em;text-transform:uppercase;color:var(--lin);background:var(--terre);padding:.55rem 1.4rem;border-radius:2rem;text-decoration:none;transition:background .3s;flex-shrink:0; }
+  .nav-cta:hover { background:var(--ocre); }
+  .nav-burger { display:none;flex-direction:column;gap:5px;background:none;border:none;cursor:pointer;padding:.4rem; }
+  .nav-burger span { display:block;width:22px;height:1.5px;background:var(--terre);transition:all .3s cubic-bezier(.32,.72,0,1);transform-origin:center; }
+  .nav-burger.open span:nth-child(1) { transform:translateY(6.5px) rotate(45deg); }
+  .nav-burger.open span:nth-child(2) { opacity:0; }
+  .nav-burger.open span:nth-child(3) { transform:translateY(-6.5px) rotate(-45deg); }
+  .nav-mobile { display:none;position:fixed;inset:0;top:65px;background:rgba(247,242,232,0.98);backdrop-filter:blur(12px);z-index:90;padding:3rem 2rem;transform:translateY(-110%);transition:transform .4s cubic-bezier(.32,.72,0,1); }
+  .nav-mobile.open { transform:translateY(0);display:block; }
+  .nav-mobile ul { list-style:none;display:flex;flex-direction:column;gap:1.5rem; }
+  .nav-mobile a { font-size:1.3rem;font-family:'Playfair Display',serif;color:var(--charbon);text-decoration:none; }
+  .mobile-cta { display:inline-block;color:var(--lin)!important;background:var(--terre);padding:.7rem 1.5rem;border-radius:2rem;font-family:'DM Sans',sans-serif!important;font-size:.85rem!important;font-weight:500;letter-spacing:.1em;text-transform:uppercase; }
+  footer { background:var(--charbon);padding:3.5rem 3rem;display:grid;grid-template-columns:1.5fr 1fr 1fr;gap:3rem; }
+  .footer-brand { font-family:'Playfair Display',serif;font-size:1.2rem;font-weight:600;color:var(--lin);margin-bottom:.75rem; }
+  .footer-brand span { font-style:italic;color:var(--ocre);font-weight:400; }
+  .footer-desc { font-size:.78rem;color:rgba(247,242,232,0.4);line-height:1.75;font-weight:300;max-width:28ch; }
+  .footer-col-title { font-size:.65rem;letter-spacing:.18em;text-transform:uppercase;color:var(--ocre);margin-bottom:1rem; }
+  .footer-links { list-style:none;display:flex;flex-direction:column;gap:.5rem; }
+  .footer-links a { font-size:.8rem;color:rgba(247,242,232,0.45);text-decoration:none;transition:color .3s; }
+  .footer-links a:hover { color:var(--lin); }
+  .footer-bottom { background:var(--charbon);border-top:1px solid rgba(247,242,232,0.06);padding:1.25rem 3rem;display:flex;justify-content:space-between;font-size:.7rem;color:rgba(247,242,232,0.22); }
+  .prose { max-width:72ch; }
+  .prose h2 { font-family:'Playfair Display',serif;font-size:1.6rem;color:var(--terre);margin:2rem 0 .75rem; }
+  .prose h3 { font-family:'Playfair Display',serif;font-size:1.2rem;color:var(--charbon);margin:1.5rem 0 .5rem; }
+  .prose p { margin-bottom:1.2rem;font-size:.95rem;line-height:1.8; }
+  .prose ul { margin:0 0 1.2rem 1.5rem; }
+  .prose li { margin-bottom:.4rem;font-size:.95rem;line-height:1.7; }
+  @media(max-width:768px) {
+    nav { padding:1rem 1.25rem; }
+    .nav-links,.nav-cta { display:none; }
+    .nav-burger { display:flex; }
+    .nav-mobile { display:block; }
+    footer { grid-template-columns:1fr;gap:2rem;padding:2rem 1.5rem; }
+    .footer-bottom { flex-direction:column;gap:.5rem;text-align:center;padding:1rem 1.5rem; }
+    .section { padding:3rem 1.5rem; }
+    .section-header { flex-direction:column;gap:.75rem;align-items:flex-start; }
+  }
+</style>

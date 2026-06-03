@@ -1,0 +1,18 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { getCollection } from 'astro:content';
+export async function getStaticPaths() {
+  const items = await getCollection('realisations');
+  return items.map(item => ({ params: { slug: item.slug }, props: { item } }));
+}
+const { item } = Astro.props;
+const { Content } = await item.render();
+---
+<BaseLayout title={item.data.title}>
+<article class="section">
+  <p style="font-size:.72rem;letter-spacing:.15em;text-transform:uppercase;color:var(--ocre);margin-bottom:1rem">{item.data.type} · {item.data.location} · {item.data.year}</p>
+  <h1 style="font-family:'Playfair Display',serif;font-size:2.5rem;color:var(--terre);margin-bottom:2rem">{item.data.title}</h1>
+  {item.data.image && <img src={item.data.image} alt={item.data.title} style="border-radius:1rem;margin-bottom:2rem;max-height:500px;object-fit:cover;width:100%" />}
+  <div class="prose"><Content /></div>
+</article>
+</BaseLayout>
