@@ -56,99 +56,104 @@ const base = import.meta.env.BASE_URL.replace(/\/$/, '');
   )}
 </div>
 
-<script define:vars={{ markersJson, base }}>
-  const MARKERS = JSON.parse(markersJson);
+<!-- données injectées côté serveur, lues par le script inline -->
+<div id="map-data" data-markers={markersJson} data-base={base} style="display:none"></div>
 
-  const ROLE_COLORS = {
-    'Maçon pisé':        '#C17F3A',
-    'Architecte terre':  '#7A4F2E',
-    'Entreprise générale':'#5C7A5A',
-    'Formateur':         '#4A6B8A',
-    'Bureau d\'études':  '#8A5A8A',
-    'Autre':             '#9E7B55',
-  };
+<!-- Leaflet JS doit être chargé AVANT le script inline -->
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script is:inline>
+  (function () {
+    var el = document.getElementById('map-data');
+    var MARKERS = JSON.parse(el.getAttribute('data-markers'));
+    var base = el.getAttribute('data-base');
 
-  function colorForRole(role) {
-    return ROLE_COLORS[role] ?? '#9E7B55';
-  }
+    var ROLE_COLORS = {
+      'Maçon pisé':         '#C17F3A',
+      'Architecte terre':   '#7A4F2E',
+      'Entreprise générale':'#5C7A5A',
+      'Formateur':          '#4A6B8A',
+      "Bureau d'études":    '#8A5A8A',
+      'Autre':              '#9E7B55',
+    };
 
-  function makeIcon(role) {
-    const color = colorForRole(role);
-    const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="28" height="38" viewBox="0 0 28 38">
-      <path d="M14 0C6.27 0 0 6.27 0 14c0 9.63 14 24 14 24S28 23.63 28 14C28 6.27 21.73 0 14 0z" fill="${color}" stroke="white" stroke-width="2"/>
-      <circle cx="14" cy="14" r="5" fill="white" opacity="0.9"/>
-    </svg>`;
-    return L.icon({
-      iconUrl: 'data:image/svg+xml;base64,' + btoa(svg),
-      iconSize: [28, 38],
-      iconAnchor: [14, 38],
-      popupAnchor: [0, -38],
+    function colorForRole(role) {
+      return ROLE_COLORS[role] || '#9E7B55';
+    }
+
+    function makeIcon(role) {
+      var color = colorForRole(role);
+      var svg = '<svg xmlns="http://www.w3.org/2000/svg" width="28" height="38" viewBox="0 0 28 38">'
+        + '<path d="M14 0C6.27 0 0 6.27 0 14c0 9.63 14 24 14 24S28 23.63 28 14C28 6.27 21.73 0 14 0z" fill="' + color + '" stroke="white" stroke-width="2"/>'
+        + '<circle cx="14" cy="14" r="5" fill="white" opacity="0.9"/>'
+        + '</svg>';
+      return L.icon({
+        iconUrl: 'data:image/svg+xml;base64,' + btoa(unescape(encodeURIComponent(svg))),
+        iconSize: [28, 38],
+        iconAnchor: [14, 38],
+        popupAnchor: [0, -38],
+      });
+    }
+
+    var map = L.map('map', { zoomControl: true }).setView([45.188, 5.724], 9);
+
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '© <a href="https://openstreetmap.org/copyright">OpenStreetMap</a>',
+      maxZoom: 18,
+    }).addTo(map);
+
+    var leafletMarkers = [];
+
+    MARKERS.forEach(function (m) {
+      var marker = L.marker([m.lat, m.lng], { icon: makeIcon(m.role) });
+
+      var popupHtml = '<div class="popup-card">'
+        + '<div class="popup-role" style="background:' + colorForRole(m.role) + '">' + m.role + '</div>'
+        + '<strong class="popup-name">' + m.title + '</strong>'
+        + '<span class="popup-zone">📍 ' + m.zone + '</span>'
+        + (m.phone ? '<a href="tel:' + m.phone + '" class="popup-link">📞 ' + m.phone + '</a>' : '')
+        + (m.email ? '<a href="mailto:' + m.email + '" class="popup-link">✉ ' + m.email + '</a>' : '')
+        + (m.website ? '<a href="' + m.website + '" target="_blank" rel="noopener" class="popup-link">🌐 Site web</a>' : '')
+        + '<a href="' + base + '/acteurs/' + m.slug + '" class="popup-cta">Voir la fiche →</a>'
+        + '</div>';
+
+      marker.bindPopup(popupHtml, { maxWidth: 240 });
+
+      marker.on('click', function () {
+        var sb = document.getElementById('sidebar-content');
+        var hint = document.querySelector('.sidebar-hint');
+        if (hint) hint.style.display = 'none';
+        sb.innerHTML = '<div class="sb-card">'
+          + '<span class="sb-role" style="background:' + colorForRole(m.role) + '">' + m.role + '</span>'
+          + '<h3 class="sb-name">' + m.title + '</h3>'
+          + '<p class="sb-zone">📍 ' + m.zone + '</p>'
+          + (m.phone ? '<a href="tel:' + m.phone + '" class="sb-link">📞 ' + m.phone + '</a>' : '')
+          + (m.email ? '<a href="mailto:' + m.email + '" class="sb-link">✉ ' + m.email + '</a>' : '')
+          + (m.website ? '<a href="' + m.website + '" target="_blank" rel="noopener" class="sb-link">🌐 Site web</a>' : '')
+          + '<a href="' + base + '/acteurs/' + m.slug + '" class="btn-primary sb-cta">Voir la fiche complète</a>'
+          + '</div>';
+      });
+
+      marker.markerRole = m.role;
+      marker.addTo(map);
+      leafletMarkers.push(marker);
     });
-  }
 
-  const map = L.map('map', { zoomControl: true }).setView([45.188, 5.724], 9);
-
-  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-    attribution: '© <a href="https://openstreetmap.org/copyright">OpenStreetMap</a>',
-    maxZoom: 18,
-  }).addTo(map);
-
-  const leafletMarkers = [];
-
-  MARKERS.forEach(m => {
-    const marker = L.marker([m.lat, m.lng], { icon: makeIcon(m.role) });
-
-    const popupHtml = `
-      <div class="popup-card">
-        <div class="popup-role" style="background:${colorForRole(m.role)}">${m.role}</div>
-        <strong class="popup-name">${m.title}</strong>
-        <span class="popup-zone">📍 ${m.zone}</span>
-        ${m.phone ? `<a href="tel:${m.phone}" class="popup-link">📞 ${m.phone}</a>` : ''}
-        ${m.email ? `<a href="mailto:${m.email}" class="popup-link">✉ ${m.email}</a>` : ''}
-        ${m.website ? `<a href="${m.website}" target="_blank" rel="noopener" class="popup-link">🌐 Site web</a>` : ''}
-        <a href="${base}/acteurs/${m.slug}" class="popup-cta">Voir la fiche →</a>
-      </div>`;
-
-    marker.bindPopup(popupHtml, { maxWidth: 240 });
-
-    marker.on('click', () => {
-      const sb = document.getElementById('sidebar-content');
-      const hint = document.querySelector('.sidebar-hint');
-      if (hint) hint.style.display = 'none';
-      sb.innerHTML = `
-        <div class="sb-card">
-          <span class="sb-role" style="background:${colorForRole(m.role)}">${m.role}</span>
-          <h3 class="sb-name">${m.title}</h3>
-          <p class="sb-zone">📍 ${m.zone}</p>
-          ${m.phone ? `<a href="tel:${m.phone}" class="sb-link">📞 ${m.phone}</a>` : ''}
-          ${m.email ? `<a href="mailto:${m.email}" class="sb-link">✉ ${m.email}</a>` : ''}
-          ${m.website ? `<a href="${m.website}" target="_blank" rel="noopener" class="sb-link">🌐 Site web</a>` : ''}
-          <a href="${base}/acteurs/${m.slug}" class="btn-primary sb-cta">Voir la fiche complète</a>
-        </div>`;
-    });
-
-    marker.markerRole = m.role;
-    marker.addTo(map);
-    leafletMarkers.push(marker);
-  });
-
-  document.querySelectorAll('.filter-btn').forEach(btn => {
-    btn.addEventListener('click', () => {
-      document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
-      btn.classList.add('active');
-      const role = btn.dataset.role;
-      leafletMarkers.forEach(m => {
-        if (role === 'tous' || m.markerRole === role) {
-          m.addTo(map);
-        } else {
-          m.remove();
-        }
+    document.querySelectorAll('.filter-btn').forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        document.querySelectorAll('.filter-btn').forEach(function (b) { b.classList.remove('active'); });
+        btn.classList.add('active');
+        var role = btn.getAttribute('data-role');
+        leafletMarkers.forEach(function (m) {
+          if (role === 'tous' || m.markerRole === role) {
+            m.addTo(map);
+          } else {
+            m.remove();
+          }
+        });
       });
     });
-  });
+  })();
 </script>
-
-<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
 </BaseLayout>
 
@@ -173,7 +178,6 @@ const base = import.meta.env.BASE_URL.replace(/\/$/, '');
   .sb-cta { margin-top:.75rem;font-size:.72rem;padding:.65rem 1.2rem; }
   .carte-empty { text-align:center;color:var(--argile);font-size:.9rem; }
 
-  /* Leaflet popup overrides */
   :global(.popup-card) { display:flex;flex-direction:column;gap:.4rem;min-width:160px; }
   :global(.popup-role) { font-size:.6rem;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:#fff;padding:.2rem .5rem;border-radius:2rem;align-self:flex-start; }
   :global(.popup-name) { font-family:'Playfair Display',serif;font-size:.95rem;color:var(--charbon); }
