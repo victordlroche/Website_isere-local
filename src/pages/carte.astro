@@ -25,6 +25,9 @@ const base = import.meta.env.BASE_URL.replace(/\/$/, '');
 
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.css" />
 
+<!-- Données JSON injectées via data-attribute (la seule façon fiable en Astro is:inline) -->
+<div id="map-data" style="display:none" data-markers={markersJson} data-base={base}></div>
+
 <div class="carte-page">
   <div class="carte-header section">
     <div>
@@ -56,9 +59,6 @@ const base = import.meta.env.BASE_URL.replace(/\/$/, '');
   )}
 </div>
 
-<!-- Données serveur encodées dans le HTML -->
-<script id="map-data" type="application/json" data-base={base}>{markersJson}</script>
-
 <script is:inline>
   (function () {
     var ROLE_COLORS = {
@@ -85,7 +85,7 @@ const base = import.meta.env.BASE_URL.replace(/\/$/, '');
 
     function initMap() {
       var el = document.getElementById('map-data');
-      var MARKERS = JSON.parse(el.textContent);
+      var MARKERS = JSON.parse(el.getAttribute('data-markers'));
       var base = el.getAttribute('data-base');
 
       var map = L.map('map').setView([45.188, 5.724], 9);
@@ -103,9 +103,9 @@ const base = import.meta.env.BASE_URL.replace(/\/$/, '');
           + '<div class="popup-role" style="background:' + colorForRole(m.role) + '">' + m.role + '</div>'
           + '<strong class="popup-name">' + m.title + '</strong>'
           + '<span class="popup-zone">📍 ' + m.zone + '</span>'
-          + (m.phone  ? '<a href="tel:'    + m.phone   + '" class="popup-link">📞 ' + m.phone  + '</a>' : '')
-          + (m.email  ? '<a href="mailto:' + m.email   + '" class="popup-link">✉ '  + m.email  + '</a>' : '')
-          + (m.website? '<a href="'        + m.website + '" target="_blank" rel="noopener" class="popup-link">🌐 Site web</a>' : '')
+          + (m.phone   ? '<a href="tel:'    + m.phone   + '" class="popup-link">📞 ' + m.phone   + '</a>' : '')
+          + (m.email   ? '<a href="mailto:' + m.email   + '" class="popup-link">✉ '  + m.email   + '</a>' : '')
+          + (m.website ? '<a href="'        + m.website + '" target="_blank" rel="noopener" class="popup-link">🌐 Site web</a>' : '')
           + '<a href="' + base + '/acteurs/' + m.slug + '" class="popup-cta">Voir la fiche →</a>'
           + '</div>',
           { maxWidth: 240 }
@@ -117,9 +117,9 @@ const base = import.meta.env.BASE_URL.replace(/\/$/, '');
             + '<span class="sb-role" style="background:' + colorForRole(m.role) + '">' + m.role + '</span>'
             + '<h3 class="sb-name">' + m.title + '</h3>'
             + '<p class="sb-zone">📍 ' + m.zone + '</p>'
-            + (m.phone  ? '<a href="tel:'    + m.phone   + '" class="sb-link">📞 ' + m.phone  + '</a>' : '')
-            + (m.email  ? '<a href="mailto:' + m.email   + '" class="sb-link">✉ '  + m.email  + '</a>' : '')
-            + (m.website? '<a href="'        + m.website + '" target="_blank" rel="noopener" class="sb-link">🌐 Site web</a>' : '')
+            + (m.phone   ? '<a href="tel:'    + m.phone   + '" class="sb-link">📞 ' + m.phone   + '</a>' : '')
+            + (m.email   ? '<a href="mailto:' + m.email   + '" class="sb-link">✉ '  + m.email   + '</a>' : '')
+            + (m.website ? '<a href="'        + m.website + '" target="_blank" rel="noopener" class="sb-link">🌐 Site web</a>' : '')
             + '<a href="' + base + '/acteurs/' + m.slug + '" class="btn-primary sb-cta">Voir la fiche complète</a>'
             + '</div>';
         });
@@ -140,12 +140,7 @@ const base = import.meta.env.BASE_URL.replace(/\/$/, '');
       });
     }
 
-    /* Chargement dynamique de Leaflet — garantit que L est disponible avant initMap */
-    var css = document.createElement('link');
-    css.rel = 'stylesheet';
-    css.href = 'https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.css';
-    document.head.appendChild(css);
-
+    /* Chargement dynamique de Leaflet — initMap appelé dans onload */
     var js = document.createElement('script');
     js.src = 'https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.js';
     js.onload = initMap;
